@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow
+      POSTGRES_DB: mlflow
+
+  mlflow:
+    build: .
+    command:
+      - mlflow
+      - server
+      - --host
+      - 0.0.0.0
+      - --backend-store-uri
+      - postgresql+psycopg://mlflow:mlflow@postgres:5432/mlflow
+      - --default-artifact-root
+      - /tmp/mlruns
+      - --allowed-hosts
+      - "*"
+    depends_on:
+      - postgres
+    ports:
+      - "5001:5000"
+
+  client:
+    build: .
+    depends_on:
+      - mlflow
+    command: sleep infinity
